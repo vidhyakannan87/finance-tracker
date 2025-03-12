@@ -16,27 +16,36 @@ exports.TransactionService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const transaction_entity_1 = require("../data_access/entities/transaction.entity");
-const user_service_1 = require("../user/user.service");
 const typeorm_2 = require("typeorm");
+const transaction_utils_1 = require("./transaction.utils");
+const auth_service_1 = require("../auth/auth.service");
 let TransactionService = class TransactionService {
-    constructor(transactionRepository, userService) {
+    constructor(transactionRepository, authService) {
         this.transactionRepository = transactionRepository;
-        this.userService = userService;
+        this.authService = authService;
     }
-    findAll() {
-        return this.transactionRepository.find();
+    async findAll() {
+        const transactions = await this.transactionRepository.find();
+        return (0, transaction_utils_1.toTransactionDTOs)(transactions);
     }
-    findOne(id) {
-        return this.transactionRepository.findOne({ where: { transactionId: id } });
+    async findOne(id) {
+        const transaction = await this.transactionRepository.findOne({
+            where: { transactionId: id },
+        });
+        console.log(transaction);
+        return (0, transaction_utils_1.toTransactionDTOs)(transaction);
     }
-    findAllTransactionsByUser(userId) {
-        return this.transactionRepository.find({ where: { user: { id: userId } } });
+    async findAllTransactionsByUser(userId) {
+        const userTransactions = await this.transactionRepository.find({
+            where: { user: { id: userId } },
+        });
+        return (0, transaction_utils_1.toTransactionDTOs)(userTransactions);
     }
-    async create(transaction) {
+    async create(token, transaction) {
         const newTransaction = this.transactionRepository.create(transaction);
-        const user = await this.userService.findOne(transaction.user.id);
+        const user = await this.authService.getUserFromToken(token);
         newTransaction.user = user;
-        return this.transactionRepository.save(newTransaction);
+        this.transactionRepository.save(newTransaction);
     }
 };
 exports.TransactionService = TransactionService;
@@ -44,6 +53,6 @@ exports.TransactionService = TransactionService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(transaction_entity_1.Transaction)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
-        user_service_1.UserService])
+        auth_service_1.AuthService])
 ], TransactionService);
 //# sourceMappingURL=transaction.service.js.map

@@ -1,33 +1,46 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transaction } from 'src/data_access/entities/transaction.entity';
-import { UserService } from 'src/user/user.service';
 import { Repository } from 'typeorm';
+import { TransactionDTO } from './transaction.dto';
+import { toTransactionDTOs } from './transaction.utils';
+import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
 export class TransactionService {
   constructor(
     @InjectRepository(Transaction)
-    private transactionRepository: Repository<Transaction>,
-    private readonly userService: UserService,
+    private readonly transactionRepository: Repository<Transaction>,
+    private readonly authService: AuthService,
   ) {}
 
-  findAll(): Promise<Transaction[]> {
-    return this.transactionRepository.find();
+  async findAll(): Promise<TransactionDTO[]> {
+    const transactions = await this.transactionRepository.find();
+    return toTransactionDTOs(transactions);
   }
 
-  findOne(id: string): Promise<Transaction> {
-    return this.transactionRepository.findOne({ where: { transactionId: id } });
+  async findOne(id: string): Promise<TransactionDTO[]> {
+    const transaction = await this.transactionRepository.findOne({
+      where: { transactionId: id },
+    });
+    console.log(transaction);
+    return toTransactionDTOs(transaction);
   }
 
-  findAllTransactionsByUser(userId: string): Promise<Transaction[]> {
-    return this.transactionRepository.find({ where: { user: { id: userId } } });
+  async findAllTransactionsByUser(userId: string): Promise<TransactionDTO[]> {
+    const userTransactions = await this.transactionRepository.find({
+      where: { user: { id: userId } },
+    });
+    return toTransactionDTOs(userTransactions);
   }
 
-  async create(transaction: Partial<Transaction>): Promise<Transaction> {
+  async create(
+    token: string,
+    transaction: Partial<Transaction>,
+  ): Promise<void> {
     const newTransaction = this.transactionRepository.create(transaction);
-    const user = await this.userService.findOne(transaction.user.id);
+    const user = await this.authService.getUserFromToken(token);
     newTransaction.user = user;
-    return this.transactionRepository.save(newTransaction);
+    this.transactionRepository.save(newTransaction);
   }
 }

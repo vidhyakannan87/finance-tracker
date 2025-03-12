@@ -14,12 +14,15 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserService = void 0;
 const common_1 = require("@nestjs/common");
+const config_1 = require("@nestjs/config");
 const typeorm_1 = require("@nestjs/typeorm");
 const user_entity_1 = require("../data_access/entities/user.entity");
 const typeorm_2 = require("typeorm");
+const brcypt = require("bcrypt");
 let UserService = class UserService {
-    constructor(userRepository) {
+    constructor(userRepository, configService) {
         this.userRepository = userRepository;
+        this.configService = configService;
     }
     findAll() {
         return this.userRepository.find();
@@ -27,14 +30,17 @@ let UserService = class UserService {
     findOne(userId) {
         return this.userRepository.findOne({ where: { id: userId } });
     }
-    create(user) {
-        return this.userRepository.save(user);
+    async create(user) {
+        const saltRounds = this.configService.get('SALT_ROUNDS');
+        const hashedPassword = await brcypt.hash(user.password, parseInt(saltRounds, 10));
+        return this.userRepository.save({ ...user, password: hashedPassword });
     }
 };
 exports.UserService = UserService;
 exports.UserService = UserService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        config_1.ConfigService])
 ], UserService);
 //# sourceMappingURL=user.service.js.map

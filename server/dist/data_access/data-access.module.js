@@ -11,21 +11,26 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const user_entity_1 = require("./entities/user.entity");
 const transaction_entity_1 = require("./entities/transaction.entity");
+const config_1 = require("@nestjs/config");
 let DataAccessModule = class DataAccessModule {
 };
 exports.DataAccessModule = DataAccessModule;
 exports.DataAccessModule = DataAccessModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            typeorm_1.TypeOrmModule.forRoot({
-                type: 'postgres',
-                host: 'localhost',
-                port: 5432,
-                username: 'postgres',
-                password: 'password',
-                database: 'finance',
-                entities: [transaction_entity_1.Transaction, user_entity_1.User],
-                synchronize: true,
+            typeorm_1.TypeOrmModule.forRootAsync({
+                imports: [config_1.ConfigModule],
+                inject: [config_1.ConfigService],
+                useFactory: (configService) => ({
+                    type: configService.get('DATABASE_TYPE'),
+                    host: configService.get('DATABASE_HOST'),
+                    port: configService.get('DATABASE_PORT'),
+                    username: configService.get('DATABASE_USERNAME'),
+                    password: configService.get('DATABASE_PASSWORD'),
+                    database: configService.get('DATABASE_NAME'),
+                    entities: [transaction_entity_1.Transaction, user_entity_1.User],
+                    synchronize: true,
+                }),
             }),
             typeorm_1.TypeOrmModule.forFeature([transaction_entity_1.Transaction, user_entity_1.User]),
         ],

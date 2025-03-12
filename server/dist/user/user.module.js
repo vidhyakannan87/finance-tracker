@@ -11,12 +11,14 @@ const common_1 = require("@nestjs/common");
 const user_service_1 = require("./user.service");
 const data_access_module_1 = require("../data_access/data-access.module");
 const user_controller_1 = require("./user.controller");
+const config_1 = require("@nestjs/config");
+const auth_module_1 = require("../auth/auth.module");
 let UserModule = class UserModule {
 };
 exports.UserModule = UserModule;
 exports.UserModule = UserModule = __decorate([
     (0, common_1.Module)({
-        imports: [data_access_module_1.DataAccessModule],
+        imports: [data_access_module_1.DataAccessModule, config_1.ConfigModule, auth_module_1.AuthModule],
         providers: [user_service_1.UserService],
         exports: [user_service_1.UserService],
         controllers: [user_controller_1.UserController],

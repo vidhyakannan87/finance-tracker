@@ -12,12 +12,13 @@ const data_access_module_1 = require("../data_access/data-access.module");
 const transaction_service_1 = require("./transaction.service");
 const transaction_controller_1 = require("./transaction.controller");
 const user_module_1 = require("../user/user.module");
+const auth_module_1 = require("../auth/auth.module");
 let TransactionModule = class TransactionModule {
 };
 exports.TransactionModule = TransactionModule;
 exports.TransactionModule = TransactionModule = __decorate([
     (0, common_1.Module)({
-        imports: [data_access_module_1.DataAccessModule, user_module_1.UserModule],
+        imports: [data_access_module_1.DataAccessModule, user_module_1.UserModule, auth_module_1.AuthModule],
         providers: [transaction_service_1.TransactionService],
         controllers: [transaction_controller_1.TransactionController],
     })

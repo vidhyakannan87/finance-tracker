@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TransactionController = void 0;
 const common_1 = require("@nestjs/common");
 const transaction_service_1 = require("./transaction.service");
+const passport_1 = require("@nestjs/passport");
 let TransactionController = class TransactionController {
     constructor(transactionService) {
         this.transactionService = transactionService;
@@ -28,8 +29,9 @@ let TransactionController = class TransactionController {
     findAllTransactionsByUser(userId) {
         return this.transactionService.findAllTransactionsByUser(userId);
     }
-    create(transaction) {
-        return this.transactionService.create(transaction);
+    create(transaction, jwtToken) {
+        const token = jwtToken?.split(' ')[1];
+        return this.transactionService.create(token, transaction);
     }
 };
 exports.TransactionController = TransactionController;
@@ -54,12 +56,14 @@ __decorate([
 __decorate([
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Headers)('Authorization')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], TransactionController.prototype, "create", null);
 exports.TransactionController = TransactionController = __decorate([
     (0, common_1.Controller)('transactions'),
+    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('jwt')),
     __metadata("design:paramtypes", [transaction_service_1.TransactionService])
 ], TransactionController);
 //# sourceMappingURL=transaction.controller.js.map

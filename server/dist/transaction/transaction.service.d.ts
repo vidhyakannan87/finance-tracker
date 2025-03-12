@@ -1,12 +1,13 @@
 import { Transaction } from 'src/data_access/entities/transaction.entity';
-import { UserService } from 'src/user/user.service';
 import { Repository } from 'typeorm';
+import { TransactionDTO } from './transaction.dto';
+import { AuthService } from 'src/auth/auth.service';
 export declare class TransactionService {
-    private transactionRepository;
-    private readonly userService;
-    constructor(transactionRepository: Repository<Transaction>, userService: UserService);
-    findAll(): Promise<Transaction[]>;
-    findOne(id: string): Promise<Transaction>;
-    findAllTransactionsByUser(userId: string): Promise<Transaction[]>;
-    create(transaction: Partial<Transaction>): Promise<Transaction>;
+    private readonly transactionRepository;
+    private readonly authService;
+    constructor(transactionRepository: Repository<Transaction>, authService: AuthService);
+    findAll(): Promise<TransactionDTO[]>;
+    findOne(id: string): Promise<TransactionDTO[]>;
+    findAllTransactionsByUser(userId: string): Promise<TransactionDTO[]>;
+    create(token: string, transaction: Partial<Transaction>): Promise<void>;
 }

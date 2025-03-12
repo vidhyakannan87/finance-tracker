@@ -16,9 +16,12 @@ exports.UserController = void 0;
 const common_1 = require("@nestjs/common");
 const user_service_1 = require("./user.service");
 const common_2 = require("@nestjs/common");
+const passport_1 = require("@nestjs/passport");
+const auth_service_1 = require("../auth/auth.service");
 let UserController = class UserController {
-    constructor(userService) {
+    constructor(userService, authService) {
         this.userService = userService;
+        this.authService = authService;
     }
     async getAllUsers() {
         return await this.userService.findAll();
@@ -28,6 +31,9 @@ let UserController = class UserController {
     }
     async createUser(user) {
         return await this.userService.create(user);
+    }
+    async login(user) {
+        return await this.authService.validateUser(user.email, user.password);
     }
 };
 exports.UserController = UserController;
@@ -39,6 +45,7 @@ __decorate([
 ], UserController.prototype, "getAllUsers", null);
 __decorate([
     (0, common_1.Get)(':id'),
+    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('jwt')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
@@ -50,8 +57,16 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "createUser", null);
+__decorate([
+    (0, common_2.Post)('login'),
+    __param(0, (0, common_2.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "login", null);
 exports.UserController = UserController = __decorate([
     (0, common_1.Controller)('user'),
-    __metadata("design:paramtypes", [user_service_1.UserService])
+    __metadata("design:paramtypes", [user_service_1.UserService,
+        auth_service_1.AuthService])
 ], UserController);
 //# sourceMappingURL=user.controller.js.map
