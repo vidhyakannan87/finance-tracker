@@ -2,9 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transaction } from 'src/data_access/entities/transaction.entity';
 import { Repository } from 'typeorm';
-import { TransactionDTO } from './transaction.dto';
+import { CreateTransactionDto, TransactionDTO } from './transaction.dto';
 import { toTransactionDTOs } from './transaction.utils';
 import { AuthService } from 'src/auth/auth.service';
+import { SpendingCategory } from 'src/common/spending-category.enum';
 
 @Injectable()
 export class TransactionService {
@@ -23,24 +24,21 @@ export class TransactionService {
     const transaction = await this.transactionRepository.findOne({
       where: { transactionId: id },
     });
-    console.log(transaction);
     return toTransactionDTOs(transaction);
-  }
-
-  async findAllTransactionsByUser(userId: string): Promise<TransactionDTO[]> {
-    const userTransactions = await this.transactionRepository.find({
-      where: { user: { id: userId } },
-    });
-    return toTransactionDTOs(userTransactions);
   }
 
   async create(
     token: string,
-    transaction: Partial<Transaction>,
+    transaction: CreateTransactionDto,
   ): Promise<void> {
     const newTransaction = this.transactionRepository.create(transaction);
+    transaction.category =
+      SpendingCategory[
+        transaction.category.toUpperCase() as keyof typeof SpendingCategory
+      ] || SpendingCategory.UNKNOWN;
     const user = await this.authService.getUserFromToken(token);
     newTransaction.user = user;
+    newTransaction.category = transaction.category;
     this.transactionRepository.save(newTransaction);
   }
 }

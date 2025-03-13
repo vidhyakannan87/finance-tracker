@@ -4,6 +4,8 @@ import { AppService } from './app.service';
 import { TransactionModule } from './transaction/transaction.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
+import { CategoriesController } from './categories/categories.controller';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
@@ -18,8 +20,9 @@ import { ConfigModule } from '@nestjs/config';
         abortEarly: true,
       },
     }),
+    CategoriesModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, CategoriesController],
   providers: [AppService],
 })
 export class AppModule {}

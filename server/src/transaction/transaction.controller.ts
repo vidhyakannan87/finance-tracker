@@ -7,11 +7,10 @@ import {
   Headers,
 } from '@nestjs/common';
 import { TransactionService } from './transaction.service';
-import { Transaction } from 'src/data_access/entities/transaction.entity';
 import { AuthGuard } from '@nestjs/passport';
-import { TransactionDTO } from './transaction.dto';
+import { CreateTransactionDto, TransactionDTO } from './transaction.dto';
 
-@Controller('transactions')
+@Controller('user/transactions')
 @UseGuards(AuthGuard('jwt'))
 export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}
@@ -26,14 +25,9 @@ export class TransactionController {
     return this.transactionService.findOne(id);
   }
 
-  @Get('user/:userId')
-  findAllTransactionsByUser(userId: string): Promise<TransactionDTO[]> {
-    return this.transactionService.findAllTransactionsByUser(userId);
-  }
-
   @Post()
   create(
-    @Body() transaction: Partial<Transaction>,
+    @Body() transaction: CreateTransactionDto,
     @Headers('Authorization') jwtToken: string,
   ): Promise<void> {
     const token = jwtToken?.split(' ')[1];

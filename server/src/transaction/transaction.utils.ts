@@ -11,10 +11,8 @@ export const toTransactionDTOs = (
 };
 
 export const toTransactionDTO = (transaction: Transaction): TransactionDTO => {
-  const { user, ...transactionData } = transaction;
   return {
-    ...transactionData,
+    ...transaction,
     transactionDate: transaction.date,
-    userId: user.id,
   };
 };
