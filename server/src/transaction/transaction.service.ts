@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transaction } from 'src/data_access/entities/transaction.entity';
 import { Repository } from 'typeorm';
@@ -15,14 +15,18 @@ export class TransactionService {
     private readonly authService: AuthService,
   ) {}
 
-  async findAll(): Promise<TransactionDTO[]> {
-    const transactions = await this.transactionRepository.find();
+  async findAll(token:string): Promise<TransactionDTO[]> {
+    const user = await this.authService.getUserFromToken(token);
+    const transactions = await this.transactionRepository.find({
+      where: { user: user },
+    });
     return toTransactionDTOs(transactions);
   }
 
-  async findOne(id: string): Promise<TransactionDTO[]> {
+  async findOne(id: string, token:string): Promise<TransactionDTO[]> {
+    const user = await this.authService.getUserFromToken(token);
     const transaction = await this.transactionRepository.findOne({
-      where: { transactionId: id },
+      where: { transactionId: id, user: user },
     });
     return toTransactionDTOs(transaction);
   }

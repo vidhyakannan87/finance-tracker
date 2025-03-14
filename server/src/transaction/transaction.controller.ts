@@ -16,13 +16,20 @@ export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}
 
   @Get()
-  findAll(): Promise<TransactionDTO[]> {
-    return this.transactionService.findAll();
+  findAll(
+    @Headers('Authorization') jwtToken: string,
+  ): Promise<TransactionDTO[]> {
+    const token = jwtToken?.split(' ')[1];
+    return this.transactionService.findAll(token);
   }
 
   @Get(':id')
-  findOne(id: string): Promise<TransactionDTO[]> {
-    return this.transactionService.findOne(id);
+  findOne(
+    @Headers('Authorization') jwtToken: string,
+    id: string,
+  ): Promise<TransactionDTO[]> {
+    const token = jwtToken?.split(' ')[1];
+    return this.transactionService.findOne(id,token);
   }
 
   @Post()

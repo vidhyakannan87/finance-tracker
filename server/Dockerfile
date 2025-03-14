@@ -3,6 +3,8 @@ FROM node:18-alpine
 
 # Set the working directory inside the container
 WORKDIR /usr/src/app
+ENV NODE_ENV=development
+ENV LOGGING=true
 
 # Copy package.json and package-lock.json
 COPY package.json package-lock.json /usr/src/app/
