@@ -1,0 +1,32 @@
+services:
+  personal-finance-tracker-service:
+    build: .
+    restart: always
+    depends_on:
+      - finance-db
+    environment:
+      DATABASE_HOST: finance-db
+      DATABASE_PORT: 5432
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_NAME: finance
+      JWT_SECRET: ${JWT_SECRET:-secret}
+    ports:
+      - 3010:3010
+    command: npm run start:dev
+
+  finance-db:
+    image: postgres:15-alpine
+    container_name: finance-db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DATABASE_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-password}
+      POSTGRES_DB: ${DATABASE_NAME:-finance}
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data: {}
