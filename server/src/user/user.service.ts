@@ -3,7 +3,8 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/data_access/entities/user.entity';
 import { Repository } from 'typeorm';
-import * as brcypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
+import { generateHashedPassword } from './user.util';
 
 @Injectable()
 export class UserService {
@@ -21,12 +22,30 @@ export class UserService {
     return this.userRepository.findOne({ where: { id: userId } });
   }
 
+  findByEmail(email: string): Promise<User> {
+    return this.userRepository.findOne({ where: { email } });
+  }
+
   async create(user: Partial<User>): Promise<User> {
-    const saltRounds = this.configService.get('SALT_ROUNDS');
-    const hashedPassword = await brcypt.hash(
+    const hashedPassword = await generateHashedPassword(
+      this.configService,
       user.password,
-      parseInt(saltRounds, 10),
     );
     return this.userRepository.save({ ...user, password: hashedPassword });
+  }
+
+  async updateUserPassword(email: string, newPassword: string): Promise<User> {
+    const updateUserPassword = await generateHashedPassword(
+      this.configService,
+      newPassword,
+    );
+    const user = await this.findByEmail(email);
+    if(!user) {
+      throw new Error('User not found');
+    }
+    return this.userRepository.save({
+      id: user.id,
+      password: updateUserPassword,
+    });
   }
 }

@@ -34,4 +34,11 @@ export class UserController {
   ): Promise<{ accessToken: string } | null> {
     return await this.authService.validateUser(user.email, user.password);
   }
+
+  @Post('reset-password')
+  async resetPassword(
+    @Body() user: { email: string; newPassword: string },
+  ): Promise<void> {
+    await this.userService.updateUserPassword(user.email, user.newPassword);
+  }
 }

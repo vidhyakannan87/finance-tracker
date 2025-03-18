@@ -1,10 +1,10 @@
 // src/app/login/page.tsx
 "use client";
 
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 import "./login.css"; // Import CSS for login page styling
 import { useState } from "react";
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
   const apiUrl = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:8080";
@@ -15,7 +15,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-     const router = useRouter();
+  const router = useRouter();
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -88,9 +88,14 @@ const Login = () => {
             />
           </div>
 
-          <button type="submit" className="submit-btn" disabled={loading}>
-            {loading ? "Just a moment..." : "Login"}
-          </button>
+          <div className="button-group">
+            <button type="submit" className="submit-btn" disabled={loading}>
+              {loading ? "Just a moment..." : "Login"}
+            </button>
+            <button type="button" className="forgot-password-btn" onClick={() => router.push("/forgot-password")}>
+              Forgot Password?
+            </button>
+          </div>
           {error && <p className="error-message">{error}</p>}
         </form>
       </div>

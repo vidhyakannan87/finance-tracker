@@ -3,7 +3,7 @@ import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
 import Header from "./components/Header";
 
-export const meta: Metadata = {
+export const metadata: Metadata = {
   title: "Finance Tracker",
 };
 

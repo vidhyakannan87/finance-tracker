@@ -16,6 +16,7 @@ const Header = () => {
         {isAuthenticated ? (
           <>
             <Link href="/transactions">Transactions</Link>
+            <Link href="/profile">Profile</Link>
             <button onClick={logout}>Logout</button>
           </>
         ) : (
