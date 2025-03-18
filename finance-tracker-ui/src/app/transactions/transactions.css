@@ -1,50 +1,138 @@
-/* src/app/transactions/transactions.css */
-
 .transactions-container {
-    padding: 20px;
-    background-color: #f9f9f9;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-  
-  .transactions-title {
-    font-size: 2rem;
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
-  .transactions-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-  }
-  
-  .transactions-table th,
-  .transactions-table td {
-    padding: 10px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  .transactions-table th {
-    background-color: #4CAF50;
-    color: white;
-  }
-  
-  .transactions-table tr:nth-child(even) {
-    background-color: #f2f2f2;
-  }
-  
-  .transactions-table td.positive {
-    color: green;
-  }
-  
-  .transactions-table td.negative {
-    color: red;
-    font-weight: bold;
-  }
-  
-  .transactions-table td {
-    font-size: 1rem;
-  }
-  
+  padding: 20px;
+  background-color: #f9f9f9;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.transactions-title {
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.transactions-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.transactions-table th,
+.transactions-table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.transactions-table th {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.transactions-table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.transactions-table td.positive {
+  color: green;
+}
+
+.transactions-table td.negative {
+  color: red;
+  font-weight: bold;
+}
+
+.transactions-table td {
+  font-size: 1rem;
+}
+
+/* Add Transaction Button */
+.add-transaction-btn {
+  display: block;
+  margin: 20px auto;
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.add-transaction-btn:hover {
+  background-color: #45a049;
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Modal Box */
+.modal {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 400px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.modal h2 {
+  margin-bottom: 15px;
+}
+
+/* Form Styling */
+.transaction-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.transaction-form label {
+  font-weight: bold;
+  margin-top: 10px;
+  text-align: left;
+}
+
+.transaction-form input {
+  padding: 8px;
+  margin: 5px 0 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.transaction-form button {
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-top: 10px;
+}
+
+.transaction-form button[type="submit"] {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.transaction-form button[type="submit"]:hover {
+  background-color: #45a049;
+}
+
+.cancel-btn {
+  background-color: #ccc;
+}
+
+.cancel-btn:hover {
+  background-color: #999;
+}

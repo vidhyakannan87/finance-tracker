@@ -6,7 +6,6 @@
   align-items: center;
   flex-direction: column;
   height: 100vh;
-  background: linear-gradient(135deg, #58a6ff, #2a5298); /* Gradient Background */
   font-family: 'Arial', sans-serif;
   color: #fff;
 }
@@ -16,7 +15,7 @@
   max-width: 600px;
   width: 100%;
   padding: 2rem;
-  background: rgba(0, 0, 0, 0.6); /* Slight dark overlay for contrast */
+  background: rgba(17, 18, 17, 0.6); /* Slight dark overlay for contrast */
   border-radius: 10px;
 }
 

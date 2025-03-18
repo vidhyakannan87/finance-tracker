@@ -21,8 +21,8 @@ export default function ForgotPassword() {
     console.log(updatedUserCreds);
 
     try {
-      const response = await fetch(`${apiUrl}/user/reset-password`, {
-        method: "POST",
+      const response = await fetch(`${apiUrl}/user/forgot-password`, {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
@@ -69,7 +69,7 @@ export default function ForgotPassword() {
 
           <div className="button-group">
             <button type="submit" className="submit-btn" disabled={loading}>
-              {loading ? "Updating Your Password..." : "Reset Password"}
+              {loading ? "Updating Your Password..." : "Change Password"}
             </button>
           </div>
         </form>
