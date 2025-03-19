@@ -36,8 +36,11 @@ export class TransactionController {
   create(
     @Body() transaction: CreateTransactionDto,
     @Headers('Authorization') jwtToken: string,
-  ): Promise<void> {
+  ): Promise<TransactionDTO> {
     const token = jwtToken?.split(' ')[1];
     return this.transactionService.create(token, transaction);
   }
+
+
+  
 }

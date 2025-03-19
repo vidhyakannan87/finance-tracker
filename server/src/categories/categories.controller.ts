@@ -8,11 +8,20 @@ import {
 export class CategoriesController {
   @Get()
   getCategories() {
-    return Object.values(SpendingCategory);
+    return SpendingCategory;
   }
 
   @Get(':category/subcategories')
-  getSubcategories(@Param('category') category: SpendingCategory) {
-    return Subcategories[category] || [];
+  getSubcategories(@Param('category') category: string) {
+    const formattedCategory = category.toUpperCase();
+    const categoryKey = Object.keys(SpendingCategory).find(
+      (key) => key === formattedCategory,
+    ) as keyof typeof SpendingCategory;
+
+    if (!categoryKey) {
+      return [];
+    }
+
+    return Subcategories[SpendingCategory[categoryKey]] || [];
   }
 }

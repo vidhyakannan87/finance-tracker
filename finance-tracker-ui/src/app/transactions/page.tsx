@@ -1,10 +1,10 @@
-// src/app/transactions/page.tsx
-"use client"; // Ensure this is a client-side component
+"use client";
 
 import { useState, useEffect } from "react";
 import "./transactions.css";
+import AddTransactionModal from "./addTransactionModal";
 
-interface Transaction {
+export interface Transaction {
   id: string;
   date: string;
   category: string;
@@ -17,60 +17,73 @@ const Transactions = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-  // Use the environment variable for the API URL
   const apiUrl = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:8080";
 
-  // Fetch transactions when the page loads
+  const fetchTransactions = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("You must be logged in to view transactions");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(`${apiUrl}/user/transactions`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch transactions");
+      }
+      const data = await response.json();
+      setTransactions(data);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unknown error occurred");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchTransactions = async () => {
-      const token = localStorage.getItem("token");
-      console.log("token", token);
-      if (!token) {
-        setError("You must be logged in to view transactions");
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const response = await fetch(`${apiUrl}/user/transactions`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!response.ok) {
-          throw new Error("Failed to fetch transactions");
-        }
-        const data = await response.json();
-        setTransactions(data);
-      } catch (err: unknown) {
-        // Handle errors
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError("An unknown error occurred");
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchTransactions();
-  }, [apiUrl]);
+  });
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  const handleTransactionAdded = (newTransaction: Transaction) => {
+    if (!newTransaction.id) {
+      console.warn(
+        "New transaction is missing an ID. Fetching full list instead."
+      );
+      fetchTransactions();
+    } else {
+      setTransactions((prevTransactions) => [
+        newTransaction,
+        ...prevTransactions,
+      ]);
+    }
+  };
 
-  if (error) {
-    return <div>{error}</div>;
-  }
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <div className="transactions-container">
       <h1 className="transactions-title">Your Transactions</h1>
+      <button
+        className="add-transaction-btn"
+        onClick={() => setIsModalOpen(true)}
+      >
+        + Add Transaction
+      </button>
+
       <table className="transactions-table">
         <thead>
           <tr>
@@ -82,8 +95,8 @@ const Transactions = () => {
           </tr>
         </thead>
         <tbody>
-          {transactions.map((transaction,index) => (
-           <tr key={transaction.id ?? `transaction-${index}`}>
+          {transactions.map((transaction, index) => (
+            <tr key={transaction.id ?? `transaction-${index}`}>
               <td>{new Date(transaction.date).toLocaleDateString()}</td>
               <td>{transaction.category}</td>
               <td>{transaction.subcategory}</td>
@@ -95,6 +108,13 @@ const Transactions = () => {
           ))}
         </tbody>
       </table>
+
+      {isModalOpen && (
+        <AddTransactionModal
+          onClose={() => setIsModalOpen(false)}
+          onTransactionAdded={handleTransactionAdded}
+        />
+      )}
     </div>
   );
 };

@@ -34,18 +34,37 @@ export class UserService {
     return this.userRepository.save({ ...user, password: hashedPassword });
   }
 
-  async updateUserPassword(email: string, newPassword: string): Promise<User> {
+  async resetUserPassword(
+    user: User,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<void> {
+    const isPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.password,
+    );
+    if (!isPasswordValid) {
+      throw new Error('Invalid password');
+    }
+    await this.updateUserPassword(user.email, newPassword);
+  }
+
+  async updateUserPassword(email: string, newPassword: string): Promise<void> {
     const updateUserPassword = await generateHashedPassword(
       this.configService,
       newPassword,
     );
     const user = await this.findByEmail(email);
-    if(!user) {
+    if (!user) {
       throw new Error('User not found');
     }
-    return this.userRepository.save({
+    this.userRepository.save({
       id: user.id,
       password: updateUserPassword,
     });
+  }
+
+  async updateUser(user: User, userProfile: Partial<User>): Promise<void> {
+    await this.userRepository.save({ ...user, ...userProfile });
   }
 }

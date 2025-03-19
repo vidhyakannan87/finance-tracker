@@ -1,9 +1,10 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, UseGuards, Headers, Patch } from '@nestjs/common';
 import { UserService } from './user.service';
 import { Post, Body } from '@nestjs/common';
 import { User } from 'src/data_access/entities/user.entity';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from 'src/auth/auth.service';
+import { UpdateUserDTO } from './user.controller.dto';
 
 @Controller('user')
 export class UserController {
@@ -13,14 +14,9 @@ export class UserController {
   ) {}
 
   @Get()
-  async getAllUsers() {
-    return await this.userService.findAll();
-  }
-
-  @Get(':id')
   @UseGuards(AuthGuard('jwt'))
-  async getUserById(id: string) {
-    return await this.userService.findOne(id);
+  async getUserByProfile(@Headers('authorization') jwtToken: string) {
+    return await this.authService.getUserFromToken(jwtToken.split(' ')[1]);
   }
 
   @Post()
@@ -35,10 +31,41 @@ export class UserController {
     return await this.authService.validateUser(user.email, user.password);
   }
 
-  @Post('reset-password')
-  async resetPassword(
+  @Patch('forgot-password')
+  async updatePassword(
     @Body() user: { email: string; newPassword: string },
   ): Promise<void> {
     await this.userService.updateUserPassword(user.email, user.newPassword);
   }
+
+  @Patch('reset-password')
+  @UseGuards(AuthGuard('jwt'))
+  async resetPassword(
+    @Headers('authorization') jwtToken: string,
+    @Body()
+    userCreds: {
+      currentPassword: string;
+      newPassword: string;
+    },
+  ): Promise<void> {
+    const user = await this.authService.getUserFromToken(jwtToken.split(' ')[1]);
+    if (!user) {
+      throw new Error('User not found');
+    }
+    await this.userService.resetUserPassword(user, userCreds.currentPassword, userCreds.newPassword);
+  }
+
+   @Patch('update')
+   @UseGuards(AuthGuard('jwt'))
+    async updateUser(
+      @Headers('authorization') jwtToken: string,
+      @Body() userProfile: UpdateUserDTO,
+    ): Promise<void> {
+      const user = await this.authService.getUserFromToken(jwtToken.split(' ')[1]);
+      if(!user) {
+        throw new Error('User not found');
+      }
+      await this.userService.updateUser(user, userProfile);
+    }
+
 }
