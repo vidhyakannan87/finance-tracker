@@ -33,7 +33,7 @@ export class TransactionService {
 
   async create(
     token: string,
-    transaction: CreateTransactionDto,
+    transaction: Transaction,
   ): Promise<TransactionDTO> {
     const newTransaction = this.transactionRepository.create(transaction);
     transaction.category =
@@ -47,4 +47,63 @@ export class TransactionService {
       await this.transactionRepository.save(newTransaction),
     );
   }
+
+  async update(
+    id: string,
+    token: string,
+    modifiedTransaction: Transaction,
+  ): Promise<TransactionDTO> {
+    // Retrieve user from token
+    const user = await this.authService.getUserFromToken(token);
+    if (!user) {
+      throw new Error("User not found or unauthorized");
+    }
+  
+    // Fetch the existing transaction
+    const existingTransaction = await this.transactionRepository.findOne({
+      where: { transactionId: id, user },
+    });
+  
+    if (!existingTransaction) {
+      throw new Error("Transaction not found");
+    }
+  
+    // Update transaction fields with type safety
+    const updatedTransaction = {
+      ...existingTransaction,
+      amount: modifiedTransaction.amount,
+      category:
+        SpendingCategory[
+          modifiedTransaction.category.toUpperCase() as keyof typeof SpendingCategory
+        ] || SpendingCategory.UNKNOWN,
+      subcategory: modifiedTransaction.subcategory,
+      date: modifiedTransaction.date,
+      description: modifiedTransaction.description,
+      user, // Ensure user consistency
+    };
+  
+    // Save and return updated transaction DTO
+    return toTransactionDTO(await this.transactionRepository.save(updatedTransaction));
+  }
+
+  async delete(id: string, token: string): Promise<void> {  
+    // Retrieve user from token
+    const user = await this.authService.getUserFromToken(token);
+    if (!user) {
+      throw new Error("User not found or unauthorized");
+    }
+  
+    // Fetch the existing transaction
+    const existingTransaction = await this.transactionRepository.findOne({
+      where: { transactionId: id, user },
+    });
+  
+    if (!existingTransaction) {
+      throw new Error("Transaction not found");
+    }
+  
+    // Delete the transaction
+    await this.transactionRepository.delete(existingTransaction);
+  } 
+  
 }
