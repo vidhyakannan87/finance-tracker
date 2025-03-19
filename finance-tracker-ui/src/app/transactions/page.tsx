@@ -21,45 +21,54 @@ const Transactions = () => {
 
   const apiUrl = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:8080";
 
+  const fetchTransactions = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("You must be logged in to view transactions");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(`${apiUrl}/user/transactions`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch transactions");
+      }
+      const data = await response.json();
+      setTransactions(data);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unknown error occurred");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchTransactions = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setError("You must be logged in to view transactions");
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const response = await fetch(`${apiUrl}/user/transactions`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!response.ok) {
-          throw new Error("Failed to fetch transactions");
-        }
-        const data = await response.json();
-        setTransactions(data);
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError("An unknown error occurred");
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchTransactions();
-  }, [apiUrl]);
+  });
 
   const handleTransactionAdded = (newTransaction: Transaction) => {
-    setTransactions([...transactions, newTransaction]);
-    setIsModalOpen(false);
+    if (!newTransaction.id) {
+      console.warn(
+        "New transaction is missing an ID. Fetching full list instead."
+      );
+      fetchTransactions();
+    } else {
+      setTransactions((prevTransactions) => [
+        newTransaction,
+        ...prevTransactions,
+      ]);
+    }
   };
 
   if (loading) return <div>Loading...</div>;
@@ -68,7 +77,10 @@ const Transactions = () => {
   return (
     <div className="transactions-container">
       <h1 className="transactions-title">Your Transactions</h1>
-      <button className="add-transaction-btn" onClick={() => setIsModalOpen(true)}>
+      <button
+        className="add-transaction-btn"
+        onClick={() => setIsModalOpen(true)}
+      >
         + Add Transaction
       </button>
 
@@ -97,7 +109,12 @@ const Transactions = () => {
         </tbody>
       </table>
 
-      {isModalOpen && <AddTransactionModal onClose={() => setIsModalOpen(false)} onTransactionAdded={handleTransactionAdded} />}
+      {isModalOpen && (
+        <AddTransactionModal
+          onClose={() => setIsModalOpen(false)}
+          onTransactionAdded={handleTransactionAdded}
+        />
+      )}
     </div>
   );
 };

@@ -14,35 +14,10 @@ const AddTransactionModal = ({
   onTransactionAdded,
 }: AddTransactionModalProps) => {
   const apiUrl = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:8080";
-  const [categories, setCategories] = useState<string[]>([]);
+
+  const [categories, setCategories] = useState<Record<string, string>>({});
   const [subcategories, setSubcategories] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await fetch(`${apiUrl}/categories`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        if (!response.ok) {
-          throw new Error("Failed to fetch transaction categories");
-        }
-        const data = await response.json();
-        setCategories(data);
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError("An unknown error occurred");
-        }
-      }
-    };
-
-    fetchCategories();
-  }, [apiUrl]);
 
   const [transaction, setTransaction] = useState({
     date: "",
@@ -52,37 +27,51 @@ const AddTransactionModal = ({
     amount: "",
   });
 
-  const fetchSubcategories = async (category: string) => {
-    try {
-      const response = await fetch(`${apiUrl}/${category}/subcategories`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      if (!response.ok) {
-        throw new Error("Failed to fetch transaction subcategories");
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch(`${apiUrl}/categories`);
+        if (!response.ok)
+          throw new Error("Failed to fetch transaction categories");
+        const data = await response.json();
+        setCategories(data);
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "An unknown error occurred"
+        );
       }
+    };
+
+    fetchCategories();
+  }, [apiUrl]);
+
+  const fetchSubcategories = async (category: string) => {
+    if (!category) {
+      setSubcategories([]);
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${apiUrl}/categories/${category}/subcategories`
+      );
+      if (!response.ok) throw new Error("Failed to fetch subcategories");
       const data = await response.json();
       setSubcategories(data);
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("An unknown error occurred");
-      }
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "An unknown error occurred"
+      );
     }
   };
-
-  if (error) return <div>{error}</div>;
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    if (e.target.name === "category") {
-      fetchSubcategories(e.target.value);
-    }
-    setTransaction({ ...transaction, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setTransaction((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "category") fetchSubcategories(value);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -99,17 +88,29 @@ const AddTransactionModal = ({
         body: JSON.stringify(transaction),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to add transaction");
+      if (!response.ok) throw new Error("Failed to add transaction");
+
+      // const text = await response.text();
+      // const newTransaction = text ? JSON.parse(text) : null;
+      const newTransaction = await response.json();
+
+      if (newTransaction) {
+        onTransactionAdded(newTransaction);
+      } else {
+        console.warn("Transaction added successfully, but response was empty.");
+
       }
 
-      const newTransaction = await response.json();
-      onTransactionAdded(newTransaction);
-    } catch (error) {
-      console.error(error);
-      alert("Failed to add transaction");
+      onClose();
+    } catch (err) {
+      console.error(err);
+      setError(
+        err instanceof Error ? err.message : "Failed to add transaction"
+      );
     }
   };
+
+  if (error) return <div className="error-message">{error}</div>;
 
   return (
     <div className="modal-overlay">
@@ -128,26 +129,33 @@ const AddTransactionModal = ({
           <label>Category:</label>
           <select
             name="category"
-            value={transaction.category || ""}
+            value={transaction.category}
             onChange={handleChange}
             required
           >
             <option value="">Select a category</option>
-            {categories.map((category) => (
-              <option key={category} value={category}>
-                {category}
+            {Object.entries(categories).map(([key, value]) => (
+              <option key={key} value={key}>
+                {value}
               </option>
             ))}
           </select>
 
           <label>Subcategory:</label>
-          <input
-            type="list"
+          <select
             name="subcategory"
             value={transaction.subcategory}
             onChange={handleChange}
             required
-          />
+            disabled={!transaction.category}
+          >
+            <option value="">Select a subcategory</option>
+            {subcategories.map((subcategory) => (
+              <option key={subcategory} value={subcategory}>
+                {subcategory}
+              </option>
+            ))}
+          </select>
 
           <label>Description:</label>
           <input
@@ -167,10 +175,12 @@ const AddTransactionModal = ({
             required
           />
 
-          <button type="submit">Add</button>
-          <button type="button" className="cancel-btn" onClick={onClose}>
-            Cancel
-          </button>
+          <div className="modal-buttons">
+            <button type="submit">Add</button>
+            <button type="button" className="cancel-btn" onClick={onClose}>
+              Cancel
+            </button>
+          </div>
         </form>
       </div>
     </div>
