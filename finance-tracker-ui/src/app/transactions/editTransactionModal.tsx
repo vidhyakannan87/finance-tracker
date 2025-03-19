@@ -75,6 +75,7 @@ const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
       setError("Please fill in all required fields.");
       return;
     }
+    console.log(formData);
 
     onTransactionUpdated(formData);
   };
