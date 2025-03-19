@@ -144,7 +144,7 @@ const Transactions = () => {
 
   useEffect(() => {
     fetchTransactions();
-  }, []);
+  }, [fetchTransactions]);
 
   const handleTransactionAdded = (newTransaction: Transaction) => {
     if (!newTransaction.id) {
