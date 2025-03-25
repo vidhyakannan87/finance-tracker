@@ -105,7 +105,7 @@ const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
               onChange={handleChange}
               required
             >
-              <option value="">Select a category</option>
+              <option value={formData.category}>{formData.category}</option>
               {Object.entries(categories).map(([key, value]) => (
                 <option key={key} value={key}>
                   {value}
@@ -123,7 +123,7 @@ const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
               required
               disabled={!formData.category}
             >
-              <option value="">Select a subcategory</option>
+               <option value={formData.subcategory}>{formData.subcategory}</option>
               {subcategories.map((subcategory) => (
                 <option key={subcategory} value={subcategory}>
                   {subcategory}

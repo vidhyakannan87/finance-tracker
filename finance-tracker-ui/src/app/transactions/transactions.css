@@ -174,4 +174,17 @@
   background-color: #cc0000;
 }
 
+.charts-container {
+  margin-top: 40px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+.chart {
+  width: 45%;
+  min-width: 300px;
+}
+
+
 

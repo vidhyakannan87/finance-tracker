@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import "./transactions.css";
 import AddTransactionModal from "./addTransactionModal";
 import EditTransactionModal from "./editTransactionModal";
+import { Chart, registerables } from "chart.js";
+import { Bar, Pie } from "react-chartjs-2";
 
 export interface Transaction {
   id: string;
@@ -13,6 +15,8 @@ export interface Transaction {
   description: string;
   amount: number;
 }
+
+Chart.register(...registerables);
 
 const Transactions = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -25,7 +29,7 @@ const Transactions = () => {
 
   const apiUrl = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:8080";
 
-  const fetchTransactions = async () => {
+  const fetchTransactions = useCallback(async () => {
     const token = localStorage.getItem("token");
     if (!token) {
       setError("You must be logged in to view transactions");
@@ -55,7 +59,7 @@ const Transactions = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [apiUrl]);
 
   const updateTransaction = async (updatedTransaction: Transaction) => {
     const token = localStorage.getItem("token");
@@ -142,9 +146,37 @@ const Transactions = () => {
     }
   };
 
+  const processTransactionData = (transactions: Transaction[]) => {
+    const categoryTotals = transactions.reduce(
+      (acc: Record<string, number>, transaction: Transaction) => {
+        acc[transaction.category] =
+          (acc[transaction.category] || 0) + transaction.amount;
+        return acc;
+      },
+      {}
+    );
+
+    return {
+      labels: Object.keys(categoryTotals),
+      datasets: [
+        {
+          label: "Total Spending per Category",
+          data: Object.values(categoryTotals),
+          backgroundColor: [
+            "#FF6384",
+            "#36A2EB",
+            "#FFCE56",
+            "#4CAF50",
+            "#FFA726",
+          ],
+        },
+      ],
+    };
+  };
+
   useEffect(() => {
     fetchTransactions();
-  }, []);
+  }, [fetchTransactions]);
 
   const handleTransactionAdded = (newTransaction: Transaction) => {
     if (!newTransaction.id) {
@@ -262,6 +294,24 @@ const Transactions = () => {
           onClose={() => setIsEditModalOpen(false)}
           onTransactionUpdated={handleTransactionUpdated}
         />
+      )}
+
+      {transactions.length > 0 && (
+        <div className="charts-container">
+          <h2>Spending Overview</h2>
+
+          {/* Bar Chart */}
+          <div className="chart">
+            <h3>Spending by Category</h3>
+            <Bar data={processTransactionData(transactions)} />
+          </div>
+
+          {/* Pie Chart */}
+          <div className="chart">
+            <h3>Spending Distribution</h3>
+            <Pie data={processTransactionData(transactions)} />
+          </div>
+        </div>
       )}
     </div>
   );
