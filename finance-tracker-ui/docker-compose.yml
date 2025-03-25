@@ -1,6 +1,6 @@
-version: "3"
 services:
-  nextjs-app:
+  finance-tracker-ui:
+    container_name: finance-tracker-ui
     build: .
     ports:
       - "3000:3000"

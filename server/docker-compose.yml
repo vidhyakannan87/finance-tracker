@@ -1,5 +1,6 @@
 services:
   personal-finance-tracker-service:
+    
     build: .
     restart: always
     depends_on:

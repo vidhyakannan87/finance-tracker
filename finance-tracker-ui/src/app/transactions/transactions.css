@@ -135,3 +135,56 @@
 .cancel-btn:hover {
   background-color: #999;
 }
+
+.transaction-actions {
+  text-align: center;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px; /* Adds space between buttons */
+}
+
+.edit-transaction-btn,
+.delete-transaction-btn {
+  padding: 6px 12px;
+  font-size: 0.9rem;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+.edit-transaction-btn {
+  background-color: #ffcc00;
+  color: #333;
+}
+
+.edit-transaction-btn:hover {
+  background-color: #e6b800;
+}
+
+.delete-transaction-btn {
+  background-color: #ff4d4d;
+  color: white;
+}
+
+.delete-transaction-btn:hover {
+  background-color: #cc0000;
+}
+
+.charts-container {
+  margin-top: 40px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+.chart {
+  width: 45%;
+  min-width: 300px;
+}
+
+
+
