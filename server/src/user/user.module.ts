@@ -1,12 +1,11 @@
 import { Module } from '@nestjs/common';
 import { UserService } from './user.service';
-import { DataAccessModule } from 'src/data_access/data-access.module';
 import { UserController } from './user.controller';
 import { ConfigModule } from '@nestjs/config';
-import { AuthModule } from 'src/auth/auth.module';
+import { DataAccessModule } from '../data_access/data-access.module';
 
 @Module({
-  imports: [DataAccessModule, ConfigModule, AuthModule],
+  imports: [DataAccessModule, ConfigModule],
   providers: [UserService],
   exports: [UserService],
   controllers: [UserController],

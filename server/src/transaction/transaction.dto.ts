@@ -6,7 +6,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import { SpendingCategory } from 'src/common/spending-category.enum';
+import { SpendingCategory } from 'common/spending-category.enum';
 
 export class CreateTransactionDto {
   @IsNumber()
@@ -33,6 +33,10 @@ export class CreateTransactionDto {
 export class TransactionDTO {
   @IsEnum(SpendingCategory)
   category: SpendingCategory;
+
+  @IsString()
+  @IsOptional()
+  subcategory?: string;
 
   @IsNumber()
   amount: number;

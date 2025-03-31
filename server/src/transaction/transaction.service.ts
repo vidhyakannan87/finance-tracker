@@ -1,11 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Transaction } from 'src/data_access/entities/transaction.entity';
+import { Transaction } from 'data_access/entities/transaction.entity';
 import { Repository } from 'typeorm';
-import { CreateTransactionDto, TransactionDTO } from './transaction.dto';
+import { TransactionDTO } from './transaction.dto';
 import { toTransactionDTO, toTransactionDTOs } from './transaction.utils';
-import { AuthService } from 'src/auth/auth.service';
-import { SpendingCategory } from 'src/common/spending-category.enum';
+import { AuthService } from '../auth/auth.service';
+import { SpendingCategory } from 'common/spending-category.enum';
 
 @Injectable()
 export class TransactionService {
@@ -36,10 +36,14 @@ export class TransactionService {
     transaction: Transaction,
   ): Promise<TransactionDTO> {
     const newTransaction = this.transactionRepository.create(transaction);
+    console.log(transaction.category);
     transaction.category =
       SpendingCategory[
         transaction.category.toUpperCase() as keyof typeof SpendingCategory
       ] || SpendingCategory.UNKNOWN;
+
+    console.log(transaction.category);
+
     const user = await this.authService.getUserFromToken(token);
     newTransaction.user = user;
     newTransaction.category = transaction.category;
@@ -56,18 +60,18 @@ export class TransactionService {
     // Retrieve user from token
     const user = await this.authService.getUserFromToken(token);
     if (!user) {
-      throw new Error("User not found or unauthorized");
+      throw new Error('User not found or unauthorized');
     }
-  
+
     // Fetch the existing transaction
     const existingTransaction = await this.transactionRepository.findOne({
       where: { transactionId: id, user },
     });
-  
+
     if (!existingTransaction) {
-      throw new Error("Transaction not found");
+      throw new Error('Transaction not found');
     }
-  
+
     // Update transaction fields with type safety
     const updatedTransaction = {
       ...existingTransaction,
@@ -81,29 +85,30 @@ export class TransactionService {
       description: modifiedTransaction.description,
       user, // Ensure user consistency
     };
-  
+
     // Save and return updated transaction DTO
-    return toTransactionDTO(await this.transactionRepository.save(updatedTransaction));
+    return toTransactionDTO(
+      await this.transactionRepository.save(updatedTransaction),
+    );
   }
 
-  async delete(id: string, token: string): Promise<void> {  
+  async delete(id: string, token: string): Promise<void> {
     // Retrieve user from token
     const user = await this.authService.getUserFromToken(token);
     if (!user) {
-      throw new Error("User not found or unauthorized");
+      throw new Error('User not found or unauthorized');
     }
-  
+
     // Fetch the existing transaction
     const existingTransaction = await this.transactionRepository.findOne({
       where: { transactionId: id, user },
     });
-  
+
     if (!existingTransaction) {
-      throw new Error("Transaction not found");
+      throw new Error('Transaction not found');
     }
-  
+
     // Delete the transaction
     await this.transactionRepository.delete(existingTransaction);
-  } 
-  
+  }
 }

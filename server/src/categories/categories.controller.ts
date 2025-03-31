@@ -1,8 +1,6 @@
 import { Controller, Get, Param } from '@nestjs/common';
-import {
-  SpendingCategory,
-  Subcategories,
-} from 'src/common/spending-category.enum';
+import { SpendingCategory, Subcategories } from 'common/spending-category.enum';
+
 
 @Controller('categories')
 export class CategoriesController {
