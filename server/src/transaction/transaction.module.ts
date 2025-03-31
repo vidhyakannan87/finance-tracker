@@ -1,12 +1,11 @@
 import { Module } from '@nestjs/common';
-import { DataAccessModule } from 'src/data_access/data-access.module';
 import { TransactionService } from './transaction.service';
 import { TransactionController } from './transaction.controller';
-import { UserModule } from 'src/user/user.module';
-import { AuthModule } from 'src/auth/auth.module';
+import { DataAccessModule } from '../data_access/data-access.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [DataAccessModule, UserModule, AuthModule],
+  imports: [DataAccessModule, AuthModule],
   providers: [TransactionService],
   controllers: [TransactionController],
 })

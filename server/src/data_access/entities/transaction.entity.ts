@@ -1,7 +1,8 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from './user.entity';
 import { ManyToOne } from 'typeorm';
-import { SpendingCategory } from 'src/common/spending-category.enum';
+import { SpendingCategory } from 'common/spending-category.enum';
+
 
 @Entity()
 export class Transaction {

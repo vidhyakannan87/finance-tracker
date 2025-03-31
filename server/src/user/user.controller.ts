@@ -1,9 +1,9 @@
 import { Controller, Get, UseGuards, Headers, Patch } from '@nestjs/common';
 import { UserService } from './user.service';
 import { Post, Body } from '@nestjs/common';
-import { User } from 'src/data_access/entities/user.entity';
 import { AuthGuard } from '@nestjs/passport';
-import { AuthService } from 'src/auth/auth.service';
+import { User } from 'data_access/entities/user.entity';
+import { AuthService } from '../auth/auth.service';
 import { UpdateUserDTO } from './user.controller.dto';
 
 @Controller('user')

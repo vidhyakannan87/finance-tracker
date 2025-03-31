@@ -10,8 +10,8 @@ import {
 } from '@nestjs/common';
 import { TransactionService } from './transaction.service';
 import { AuthGuard } from '@nestjs/passport';
-import { CreateTransactionDto, TransactionDTO } from './transaction.dto';
-import { Transaction } from 'src/data_access/entities/transaction.entity';
+import { TransactionDTO } from './transaction.dto';
+import { Transaction } from 'data_access/entities/transaction.entity';
 
 @Controller('user/transactions')
 @UseGuards(AuthGuard('jwt'))
@@ -32,7 +32,7 @@ export class TransactionController {
     id: string,
   ): Promise<TransactionDTO[]> {
     const token = jwtToken?.split(' ')[1];
-    return this.transactionService.findOne(id,token);
+    return this.transactionService.findOne(id, token);
   }
 
   @Post()
@@ -49,7 +49,7 @@ export class TransactionController {
     @Body() transaction: Transaction,
     @Headers('Authorization') jwtToken: string,
     id: string,
-  ): Promise<TransactionDTO> {  
+  ): Promise<TransactionDTO> {
     const token = jwtToken?.split(' ')[1];
     return this.transactionService.update(id, token, transaction);
   }
@@ -61,6 +61,5 @@ export class TransactionController {
   ): Promise<void> {
     const token = jwtToken?.split(' ')[1];
     return this.transactionService.delete(id, token);
-  } 
-  
+  }
 }
